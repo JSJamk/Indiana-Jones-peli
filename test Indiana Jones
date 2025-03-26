@@ -1,0 +1,155 @@
+import pygame
+import random
+
+# Alustetaan pygame
+pygame.init()
+
+# Värit
+musta = (0, 0, 0)
+valkoinen = (255, 255, 255)
+ruskea = (139, 69, 19)
+beige = (245, 222, 179)
+punainen = (255, 0, 0)
+kulta = (255, 215, 0)
+harmaa = (169, 169, 169)
+hopea = (192, 192, 192)
+sininen = (0, 0, 255)
+
+# Pelin ikkunan koko
+leveys = 800
+korkeus = 600
+ikkuna = pygame.display.set_mode((leveys, korkeus))
+pygame.display.set_caption("Indiana Jones ja DeLorean")
+
+# Kello pelin nopeuden hallintaan
+kello = pygame.time.Clock()
+
+# Pelaajan asetukset
+pelaaja_koko = 50
+pelaaja_x = leveys // 2
+pelaaja_y = korkeus - pelaaja_koko - 10
+pelaaja_nopeus = 10
+
+# Aarre
+aarre_koko = 30
+aarre_x = random.randint(0, leveys - aarre_koko)
+aarre_y = random.randint(50, korkeus // 2)
+
+# Kivet (vaarat)
+kivi_koko = 40
+kivet = []
+for _ in range(5):
+    kivi_x = random.randint(0, leveys - kivi_koko)
+    kivi_y = random.randint(-600, -50)
+    kivet.append([kivi_x, kivi_y])
+
+kivi_nopeus = 5
+
+# Pisteet
+pisteet = 0
+
+# Fontit
+fontti = pygame.font.SysFont("comicsansms", 30)
+
+# Funktio pisteiden näyttämiseen
+def nayta_pisteet():
+    teksti = fontti.render(f"Pisteet: {pisteet}", True, valkoinen)
+    ikkuna.blit(teksti, (10, 10))
+
+# Funktio Indiana Jonesin piirtämiseen
+def piirra_indiana_jones(x, y):
+    # Hattu
+    pygame.draw.rect(ikkuna, ruskea, (x + 10, y, 30, 5))  # Hatun lieri
+    pygame.draw.rect(ikkuna, ruskea, (x + 15, y - 10, 20, 10))  # Hatun yläosa
+
+    # Pää
+    pygame.draw.rect(ikkuna, beige, (x + 20, y + 5, 10, 10))  # Kasvot
+
+    # Vartalo
+    pygame.draw.rect(ikkuna, ruskea, (x + 15, y + 15, 20, 20))  # Takki
+    pygame.draw.rect(ikkuna, beige, (x + 20, y + 20, 10, 10))  # Paita
+
+    # Kädet
+    pygame.draw.rect(ikkuna, ruskea, (x + 5, y + 15, 10, 5))  # Vasen käsi
+    pygame.draw.rect(ikkuna, ruskea, (x + 35, y + 15, 10, 5))  # Oikea käsi
+
+    # Piiska
+    pygame.draw.line(ikkuna, ruskea, (x + 40, y + 20), (x + 60, y + 10), 3)  # Piiska
+
+    # Jalot
+    pygame.draw.rect(ikkuna, musta, (x + 15, y + 35, 5, 10))  # Vasen jalka
+    pygame.draw.rect(ikkuna, musta, (x + 30, y + 35, 5, 10))  # Oikea jalka
+
+# Funktio DeLorean-auton piirtämiseen
+def piirra_delorean(x, y):
+    # Auton runko
+    pygame.draw.rect(ikkuna, hopea, (x, y, 100, 40))  # Pääosa
+    pygame.draw.rect(ikkuna, sininen, (x + 10, y + 10, 80, 20))  # Ikkunat
+
+    # Renkaat
+    pygame.draw.circle(ikkuna, musta, (x + 20, y + 40), 10)  # Vasen rengas
+    pygame.draw.circle(ikkuna, musta, (x + 80, y + 40), 10)  # Oikea rengas
+
+    # Valot
+    pygame.draw.rect(ikkuna, kulta, (x - 5, y + 10, 5, 10))  # Vasen valo
+    pygame.draw.rect(ikkuna, kulta, (x + 100, y + 10, 5, 10))  # Oikea valo
+
+# Pääsilmukka
+def peli():
+    global pelaaja_x, pelaaja_y, pisteet, aarre_x, aarre_y, kivet, kivi_nopeus
+    kaynnissa = True
+
+    while kaynnissa:
+        for tapahtuma in pygame.event.get():
+            if tapahtuma.type == pygame.QUIT:
+                kaynnissa = False
+
+        # Pelaajan liikkuminen
+        painallukset = pygame.key.get_pressed()
+        if painallukset[pygame.K_LEFT] and pelaaja_x > 0:
+            pelaaja_x -= pelaaja_nopeus
+        if painallukset[pygame.K_RIGHT] and pelaaja_x < leveys - pelaaja_koko:
+            pelaaja_x += pelaaja_nopeus
+        if painallukset[pygame.K_UP] and pelaaja_y > 0:
+            pelaaja_y -= pelaaja_nopeus
+        if painallukset[pygame.K_DOWN] and pelaaja_y < korkeus - pelaaja_koko:
+            pelaaja_y += pelaaja_nopeus
+
+        # Törmäyksen tarkistus aarteen kanssa
+        if (pelaaja_x < aarre_x + aarre_koko and
+            pelaaja_x + pelaaja_koko > aarre_x and
+            pelaaja_y < aarre_y + aarre_koko and
+            pelaaja_y + pelaaja_koko > aarre_y):
+            pisteet += 1
+            aarre_x = random.randint(0, leveys - aarre_koko)
+            aarre_y = random.randint(50, korkeus // 2)
+
+        # Päivitetään kivien sijainti
+        for kivi in kivet:
+            kivi[1] += kivi_nopeus
+            if kivi[1] > korkeus:
+                kivi[0] = random.randint(0, leveys - kivi_koko)
+                kivi[1] = random.randint(-600, -50)
+
+            # Törmäyksen tarkistus kivien kanssa
+            if (pelaaja_x < kivi[0] + kivi_koko and
+                pelaaja_x + pelaaja_koko > kivi[0] and
+                pelaaja_y < kivi[1] + kivi_koko and
+                pelaaja_y + pelaaja_koko > kivi[1]):
+                kaynnissa = False
+
+        # Päivitetään pelinäkymä
+        ikkuna.fill(musta)
+        nayta_pisteet()
+        piirra_indiana_jones(pelaaja_x, pelaaja_y)
+        piirra_delorean(300, 500)  # DeLorean on staattinen ja sijoitettu ruutuun
+        pygame.draw.rect(ikkuna, kulta, (aarre_x, aarre_y, aarre_koko, aarre_koko))
+        for kivi in kivet:
+            pygame.draw.rect(ikkuna, harmaa, (kivi[0], kivi[1], kivi_koko, kivi_koko))
+
+        pygame.display.update()
+        kello.tick(30)
+
+    pygame.quit()
+
+peli()
