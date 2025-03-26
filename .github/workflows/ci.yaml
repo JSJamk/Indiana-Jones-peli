@@ -1,4 +1,4 @@
-name: Matopeli CI
+name: Indiana Jones CI
  
 on:
   push:
