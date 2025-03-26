@@ -1,6 +1,6 @@
 import pygame
 import random
-import pytest
+
 # Alustetaan pygame
 pygame.init()
 
