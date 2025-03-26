@@ -1,6 +1,8 @@
 import pygame
 import random
 import pytest
+
+
 # Alustetaan pygame
 pygame.init()
 
@@ -153,3 +155,5 @@ def peli():
     pygame.quit()
 
 peli()
+def test_summa():
+    assert 1 + 1 == 2
