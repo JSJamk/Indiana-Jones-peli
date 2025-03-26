@@ -1,5 +1,4 @@
-numpy==2.2.4
 pygame==2.6.1
-pytest 
-pytest -cov
+pytest
+pytest-cov
 pyinstaller
